@@ -1,8 +1,7 @@
 import csv
 import os
-from itertools import cycle
 import matplotlib.pyplot as plt
-from sklearn.cluster import MeanShift, estimate_bandwidth, AgglomerativeClustering, DBSCAN
+from sklearn.cluster import AgglomerativeClustering
 import numpy as np
 
 dir_path = "E:\Study\\19华为杯\赛题\\2019年中国研究生数学建模竞赛A题\\train_set"
@@ -11,6 +10,7 @@ file_list = os.listdir(dir_path)
 print("file number: " + str(len(file_list)))
 for i in range(len(file_list)):
     file = file_list[i]
+    # file = "train_1280001.csv"
     print("handling No.%04d file: %s" % (i + 1, file))
     file_path = os.path.join(dir_path, file)
 
@@ -52,13 +52,13 @@ for i in range(len(file_list)):
 
             receiver_position.append([x, y])
 
-            data_dict[str(idx)] = data_line
+            data_dict[",".join([str(x), str(y)])] = data_line
             idx += 1
 
     # 聚类
-    bandwidth = estimate_bandwidth(receiver_position, quantile=0.2)
+    # bandwidth = estimate_bandwidth(receiver_position, quantile=0.2)
     # clustering = MeanShift(bandwidth=bandwidth, bin_seeding=True)
-    clustering = AgglomerativeClustering(linkage="single", n_clusters=5)
+    clustering = AgglomerativeClustering(linkage="single", n_clusters=25)
     # clustering = DBSCAN(eps=10, min_samples=10)
     clustering.fit(receiver_position)
 
@@ -86,26 +86,72 @@ for i in range(len(file_list)):
     sender_position = cell_position
     cleaned_data = []
     noise_data = []
+    distance_set = []
     threshold = 3000
     for key in pos_statistic:
         group = np.array(pos_statistic[key])
         center_position = np.mean(group, axis=0)
         center_distance = np.linalg.norm(center_position - sender_position)
+        distance_set.append(center_distance)
+
+    # 计算distance的均值和方差
+    dist_mean = np.array(distance_set).mean()
+    dist_std = np.array(distance_set).std()
+    threshold = dist_mean + 3 * dist_std
+
+    for key in pos_statistic:
+        group = np.array(pos_statistic[key])
+        center_position = np.mean(group, axis=0)
+        center_distance = np.linalg.norm(center_position - sender_position)
         if center_distance < threshold and len(group) > 10:
-            cleaned_data.append(group)
-            plt.scatter(group[:, 0], group[:, 1], color=colors[int(key)], label=key)
+            cleaned_data.extend(group.tolist())
+            # plt.scatter(group[:, 0], group[:, 1], color=colors[int(key)], label=key)
         else:
-            noise_data.append(group)
+            noise_data.extend(group.tolist())
 
-    plt.scatter(cell_position[0], cell_position[1], marker='v', color="r", alpha=0.7)
-
-    plt.show()
+    # plt.scatter(cell_position[0], cell_position[1], marker='v', color="r", alpha=0.7)
+    #
+    # plt.show()
 
     # 去除噪声数据
     num_noise = len(noise_data)
     num_clean = len(cleaned_data)
-    total = len(data_dict)
+    total = len(receiver_position)
     print("noise data: %d, %.2f || clean data: %d, %.2f" % (num_noise, num_noise/total, num_clean, num_clean/total))
+
+    cleaned_data_list = []
+    for data_pos in cleaned_data:
+        key = ",".join([str(data_pos[0]), str(data_pos[1])])
+        if key in data_dict:
+            cleaned_data_list.append(data_dict[key])
+
+    # 存入到csv
+    with open("E:\Study\\19华为杯\\赛题\\2019年中国研究生数学建模竞赛A题\\cleaned_train_set\\"+ file.split('.')[0] + "_cleaned.csv", "w", newline="") as f:
+        csv_writer = csv.DictWriter(f, cleaned_data_list[0].keys())
+        csv_writer.writeheader()
+        for line_dict in cleaned_data_list:
+            csv_writer.writerow(line_dict)
+    # 可视化
+    fig = plt.figure(figsize=(20, 8))
+    # plt.title("Abnormal Data Processing")
+
+    # 清理前
+    ax1 = fig.add_subplot(1, 2, 1)
+    ax1.set_title("Original")
+    ax1.scatter(np.array(receiver_position)[:, 0], np.array(receiver_position)[:, 1], c='b', marker='^', s=1, alpha=.6)
+    ax1.scatter(np.array(noise_data)[:, 0], np.array(noise_data)[:, 1], c='r', marker='x', s=2, alpha=.6)
+    ax1.scatter(cell_position[0], cell_position[1], c='r', s=100, marker='o')
+
+    # 清理后
+    ax2 = fig.add_subplot(1, 2, 2)
+    ax2.set_title("Cleaned")
+    ax2.scatter(np.array(cleaned_data)[:, 0], np.array(cleaned_data)[:, 1], c='b', marker='^', s=1, alpha=.6)
+    ax2.scatter(cell_position[0], cell_position[1], c='r', s=100, marker='o')
+
+    # plt.legend()
+    plt.savefig("E:\Study\\19华为杯\赛题\\2019年中国研究生数学建模竞赛A题\\25_cluster_adjust_10\\" + file.split('.')[0] + '.png', dpi=400, bbox_inches='tight')
+    plt.close()
     # min_dist_key = min(cluster_center_distance, key=cluster_center_distance.get)
     # min_dist_group_member = pos_statistic[min_dist_key]
     # print("member number: %d, rate: %.2f" % (len(min_dist_group_member), len(min_dist_group_member) / len(data_dict)))
+

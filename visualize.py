@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
 
-dir_path = './data/train_set/'
+dir_path = 'E:\\Study\\19华为杯\赛题\\2019年中国研究生数学建模竞赛A题\\train_set'
 output_dir = './vis/'
 
 for file in os.listdir(dir_path):

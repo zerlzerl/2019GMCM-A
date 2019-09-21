@@ -3,6 +3,7 @@ import time
 
 import math
 import numpy as np
+import tensorflow as tf
 from tensorflow.python.keras.callbacks import ModelCheckpoint, EarlyStopping
 
 from models import *
@@ -121,18 +122,33 @@ if __name__ == '__main__':
     model.fit(train_x, train_y, batch_size=100, validation_split=0.1, epochs=100, callbacks=callbacks, verbose=1)
 
     model.save("model/my_model.h5")
-    model.evaluate(test_x, test_y)
 
-    y_pred = model.predict(test_x)
+    # save as tf
+    tf.keras.backend.set_learning_phase(0)
+    model = tf.keras.models.load_model('model/my_model.h5')
+    export_path = './model/tf/' + str(int(time.time()))
 
-    # 可视化
+    with tf.keras.backend.get_session() as sess:
+        model_input = tf.placeholder(tf.float32, [None, 44])
+        model_output = tf.placeholder(tf.float32, [None])
+        tf.saved_model.simple_save(
+            sess,
+            export_path,
+            inputs={'myInput': model_input},
+            outputs={'myOutput': model_output})
 
-    test_y_sample = test_y[:]
-    pred_y_sample = y_pred[:]
-
-    with open("./data/result/result.csv", "w") as f:
-        writer = csv.writer(f)
-        writer.writerow(["index", "test_rsrp", "pred_rsrp"])
-        for i in range(len(test_y_sample)):
-            writer.writerow([str(i), str(test_y_sample[i]), str(pred_y_sample[i][0])])
+    # model.evaluate(test_x, test_y)
+    #
+    # y_pred = model.predict(test_x)
+    #
+    # # 可视化
+    #
+    # test_y_sample = test_y[:]
+    # pred_y_sample = y_pred[:]
+    #
+    # with open("./data/result/result.csv", "w") as f:
+    #     writer = csv.writer(f)
+    #     writer.writerow(["index", "test_rsrp", "pred_rsrp"])
+    #     for i in range(len(test_y_sample)):
+    #         writer.writerow([str(i), str(test_y_sample[i]), str(pred_y_sample[i][0])])
 
