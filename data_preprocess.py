@@ -4,9 +4,9 @@ import time
 import math
 import numpy as np
 import tensorflow as tf
-from tensorflow.python.keras import Sequential
-from tensorflow.python.keras.callbacks import ModelCheckpoint
-from tensorflow.python.keras.layers import Dense
+from tensorflow.python.keras.callbacks import ModelCheckpoint, EarlyStopping
+
+from models import *
 
 from data_reader import *
 
@@ -37,7 +37,7 @@ def data_preprocess(data_line):
     clutter = int(data_line["Clutter Index"])  # 接收器所在地物类型索引
 
     # 标签
-    rsrp = data_line["RSRP"]  # 接收器信号强度
+    rsrp = float(data_line["RSRP"])  # 接收器信号强度
 
     # 相对位置
     rel_x = x - cell_x  # 接收器相对于基站的x坐标
@@ -72,18 +72,6 @@ def data_preprocess(data_line):
     return train_vec, rsrp
 
 
-def baseline_model():
-    # create model
-    model = Sequential()
-    model.add(Dense(44, input_dim=44, kernel_initializer='normal', activation='relu'))
-    model.add(Dense(22, kernel_initializer='normal', activation='relu'))
-    model.add(Dense(11, kernel_initializer='normal', activation='relu'))
-    model.add(Dense(1, kernel_initializer='normal'))
-    # Compile model
-    model.compile(loss='mean_squared_error', optimizer='adam')
-    return model
-
-
 if __name__ == '__main__':
     training_data = read_training_data()
     test_data = read_test_data()
@@ -112,24 +100,55 @@ if __name__ == '__main__':
     # train_std = train_x.std(axis=0)
     # train_x = (train_x - train_mean) / train_std
     # test_x = (test_x - train_mean) / train_std
+    # 设置模型保存位置
+    checkpoint = ModelCheckpoint("model/my_model.h5",
+                                 monitor='val_loss',
+                                 verbose=1,
+                                 save_best_only=True,
+                                 save_weights_only=True,
+                                 mode='auto')
 
-    model = baseline_model()
-    # checkpoint = ModelCheckpoint("model/my_model.h5", monitor='val_loss', verbose=1, save_best_only=True, mode='max')
-    # callbacks_list = [checkpoint]
-    model.fit(train_x, train_y, batch_size=100, validation_split=0.1, epochs=100)
+    # 当val_loss不再提升，则停止训练
+    earlystop = EarlyStopping(monitor='val_loss',
+                              min_delta=0,
+                              patience=10,
+                              verbose=1,
+                              mode='auto')
+
+    callbacks = [checkpoint, earlystop]
+
+    model = baseline_model2(44)
+
+    model.fit(train_x, train_y, batch_size=100, validation_split=0.1, epochs=100, callbacks=callbacks, verbose=1)
 
     model.save("model/my_model.h5")
-    model.evaluate(test_x, test_y)
 
-    y_pred = model.predict(test_x)
+    # save as tf
+    tf.keras.backend.set_learning_phase(0)
+    model = tf.keras.models.load_model('model/my_model.h5')
+    export_path = './model/tf/' + str(int(time.time()))
 
-    # 可视化
+    with tf.keras.backend.get_session() as sess:
+        model_input = tf.placeholder(tf.float32, [None, 44])
+        model_output = tf.placeholder(tf.float32, [None])
+        tf.saved_model.simple_save(
+            sess,
+            export_path,
+            inputs={'myInput': model_input},
+            outputs={'myOutput': model_output})
 
-    test_y_sample = test_y[:100]
-    pred_y_sample = y_pred[:100]
+    # model.evaluate(test_x, test_y)
+    #
+    # y_pred = model.predict(test_x)
+    #
+    # # 可视化
+    #
+    # test_y_sample = test_y[:]
+    # pred_y_sample = y_pred[:]
+    #
+    # with open("./data/result/result.csv", "w") as f:
+    #     writer = csv.writer(f)
+    #     writer.writerow(["index", "test_rsrp", "pred_rsrp"])
+    #     for i in range(len(test_y_sample)):
+    #         writer.writerow([str(i), str(test_y_sample[i]), str(pred_y_sample[i][0])])
 
-    with open("./data/result/result.csv", "w") as f:
-        writer = csv.writer(f)
-        writer.writerow(["index", "test_rsrp", "pred_rsrp"])
-        for i in range(len(test_y_sample)):
-            writer.writerow([str(i), str(test_y_sample[i]), str(pred_y_sample[i][0])])
