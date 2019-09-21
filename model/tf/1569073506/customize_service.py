@@ -63,8 +63,8 @@ class mnist_service(TfServingBaseService):
 
                     featured_data.append(train_vec)
 
-                print(file_name, featured_data.shape)
-                filesDatas.append(featured_data)
+                print(file_name, len(featured_data))
+                filesDatas.append(np.array(featured_data))
 
         filesDatas = np.array(filesDatas, dtype=np.float32).reshape(-1, 17)
         preprocessed_data['myInput'] = filesDatas
