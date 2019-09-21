@@ -2,14 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="1a8cbde8-ee1d-42be-8aa4-286585e91b92" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/feature_calc.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/model/tf/1569060015/config.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/model/tf/1569060015/customize_service.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/clean_noise.py" beforeDir="false" afterPath="$PROJECT_DIR$/clean_noise.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/result/result.csv" beforeDir="false" afterPath="$PROJECT_DIR$/data/result/result.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data_preprocess.py" beforeDir="false" afterPath="$PROJECT_DIR$/data_preprocess.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/model/my_model.h5" beforeDir="false" afterPath="$PROJECT_DIR$/model/my_model.h5" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/visualize.py" beforeDir="false" afterPath="$PROJECT_DIR$/visualize.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/tf/1569073506/customize_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/tf/1569073506/customize_service.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -31,7 +24,7 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/models.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="-89">
@@ -61,11 +54,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/model/tf/1569073506/customize_service.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-255">
-              <caret line="16" column="52" lean-forward="true" selection-start-line="16" selection-start-column="52" selection-end-line="16" selection-end-column="52" />
+            <state relative-caret-position="303">
+              <caret line="65" column="36" lean-forward="true" selection-start-line="65" selection-start-column="36" selection-end-line="65" selection-end-column="36" />
               <folding>
                 <element signature="e#0#11#0" expanded="true" />
               </folding>
@@ -383,7 +376,7 @@
       <updated>1568891620648</updated>
       <workItem from="1568891622347" duration="1527000" />
       <workItem from="1568895782744" duration="9572000" />
-      <workItem from="1568940240920" duration="60146000" />
+      <workItem from="1568940240920" duration="60801000" />
     </task>
     <task id="LOCAL-00001" summary="first commit">
       <created>1568964245162</created>
@@ -399,15 +392,21 @@
       <option name="project" value="LOCAL" />
       <updated>1569047217213</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="data clean">
+      <created>1569075362474</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1569075362474</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="71245000" />
+    <option name="totallyTimeSpent" value="71900000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-7" y="-7" width="1550" height="838" extended-state="6" />
-    <editor active="true" />
     <layout>
       <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.25737265" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
@@ -624,16 +623,6 @@
     <entry file="file://$PROJECT_DIR$/feature_calc.py">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
-    <entry file="file://$PROJECT_DIR$/model/tf/1569073506/customize_service.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-255">
-          <caret line="16" column="52" lean-forward="true" selection-start-line="16" selection-start-column="52" selection-end-line="16" selection-end-column="52" />
-          <folding>
-            <element signature="e#0#11#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/data_preprocess.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="126">
@@ -648,6 +637,16 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-89">
           <caret line="8" column="21" selection-start-line="8" selection-start-column="14" selection-end-line="8" selection-end-column="21" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/model/tf/1569073506/customize_service.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="303">
+          <caret line="65" column="36" lean-forward="true" selection-start-line="65" selection-start-column="36" selection-end-line="65" selection-end-column="36" />
+          <folding>
+            <element signature="e#0#11#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
