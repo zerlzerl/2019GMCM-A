@@ -7,8 +7,9 @@ from tensorflow.python import keras
 import numpy as np
 
 
+keras.backend.clear_session()
 # 原始文件的header顺序
-test_file_path = "E:\\Study\\19华为杯\\赛题\\2019年中国研究生数学建模竞赛A题\\train_set\\train_122201.csv"
+test_file_path = "E:\\Study\\19华为杯\\赛题\\2019年中国研究生数学建模竞赛A题\\train_set\\train_130901.csv"
 test_x = []
 test_y = []
 with open(test_file_path, "r") as f:
@@ -109,9 +110,13 @@ pred_y = pred_y.reshape(-1,)
 
 mean_pred_y = pred_y.mean()
 mean_test_y = test_y.mean()
+print("mean_pred_y:" + str(mean_pred_y))
+print("mean_test_y:" + str(mean_test_y))
 
 std_pred_y = pred_y.std()
 std_test_y = test_y.std()
+print("std_pred_y:" + str(std_pred_y))
+print("std_test_y:" + str(std_test_y))
 
 tp = 0
 fp = 0
