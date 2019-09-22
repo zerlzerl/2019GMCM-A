@@ -63,7 +63,7 @@ def read_from_origin():
     # train["rsrp"] = train["rsrp"] - train["power"]
 
     # 添加列 logd * logh
-    train.insert(13, "logh*logd", train["h_v"] * train["d"])
+    train.insert(13, "logh*logd", train["cell_h"] * train["d"])
     train.to_csv('test.csv', index=0)
     return train
 
