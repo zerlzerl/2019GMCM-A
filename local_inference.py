@@ -9,7 +9,7 @@ import numpy as np
 
 keras.backend.clear_session()
 # 原始文件的header顺序
-test_file_path = "E:\\Study\\19华为杯\\赛题\\2019年中国研究生数学建模竞赛A题\\train_set\\train_130901.csv"
+test_file_path = "E:\\Study\\19华为杯\\赛题\\2019年中国研究生数学建模竞赛A题\\train_set\\train_132501.csv"
 test_x = []
 test_y = []
 with open(test_file_path, "r") as f:
