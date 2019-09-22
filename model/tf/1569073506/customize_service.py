@@ -66,7 +66,7 @@ class mnist_service(TfServingBaseService):
                 print(file_name, len(featured_data))
                 filesDatas.append(np.array(featured_data))
 
-        filesDatas = np.array(filesDatas, dtype=np.float32).reshape(-1, 17)
+        filesDatas = np.array(filesDatas, dtype=np.float32).reshape(-1, 44)
         preprocessed_data['myInput'] = filesDatas
         print("preprocessed_data[\'myInput\'].shape = ", preprocessed_data['myInput'].shape)
 
