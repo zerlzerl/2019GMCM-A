@@ -127,10 +127,14 @@ if __name__ == '__main__':
     tf.keras.backend.set_learning_phase(0)
     model = tf.keras.models.load_model('model/my_model.h5')
     export_path = './model/tf/' + str(int(time.time()))
-
+    print(model.inputs)
+    print(model.outputs)
+    #
     with tf.keras.backend.get_session() as sess:
-        model_input = tf.placeholder(tf.float32, [None, 44])
-        model_output = tf.placeholder(tf.float32, [None])
+        # model_input = tf.placeholder(tf.float32, [None, 44])
+        # model_output = tf.placeholder(tf.float32, [None])
+        model_input = tf.placeholder(tf.float32, shape=[None, 44])
+        model_output = model(model_input)
         tf.saved_model.simple_save(
             sess,
             export_path,
