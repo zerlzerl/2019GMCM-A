@@ -28,7 +28,7 @@ for file_name in file_list:
 
 
         # sample
-        sample_rate = 0.1
+        sample_rate = 0.99
         sample_num = round(sample_rate * len(file_data))
         sample_data = random.sample(file_data, sample_num)  # 从单个文件中sample的数据
         sampled_data.extend(sample_data)
@@ -38,11 +38,52 @@ for file_name in file_list:
 
 # 写入文件保存
 random.shuffle(sampled_data)
-sampled_file_path = "./data/sampled_data.csv"
+data_1 = sampled_data[0: 2000000 - 1]
+data_2 = sampled_data[2000000: 4000000 - 1]
+data_3 = sampled_data[4000000: 6000000 - 1]
+data_4 = sampled_data[6000000: 8000000 - 1]
+data_5 = sampled_data[8000000: 10000000 - 1]
+data_6 = sampled_data[10000000: -1]
+sampled_file_path = "./data/sampled_data_1.csv"
 with open(sampled_file_path, "w", newline="") as f:
     csv_writer = csv.DictWriter(f, fieldnames=sampled_data[0].keys())
     csv_writer.writeheader()
-    for row in sampled_data:
+    for row in data_1:
+        csv_writer.writerow(row)
+
+sampled_file_path = "./data/sampled_data_2.csv"
+with open(sampled_file_path, "w", newline="") as f:
+    csv_writer = csv.DictWriter(f, fieldnames=sampled_data[0].keys())
+    csv_writer.writeheader()
+    for row in data_2:
+        csv_writer.writerow(row)
+
+sampled_file_path = "./data/sampled_data_3.csv"
+with open(sampled_file_path, "w", newline="") as f:
+    csv_writer = csv.DictWriter(f, fieldnames=sampled_data[0].keys())
+    csv_writer.writeheader()
+    for row in data_3:
+        csv_writer.writerow(row)
+
+sampled_file_path = "./data/sampled_data_4.csv"
+with open(sampled_file_path, "w", newline="") as f:
+    csv_writer = csv.DictWriter(f, fieldnames=sampled_data[0].keys())
+    csv_writer.writeheader()
+    for row in data_4:
+        csv_writer.writerow(row)
+
+sampled_file_path = "./data/sampled_data_5.csv"
+with open(sampled_file_path, "w", newline="") as f:
+    csv_writer = csv.DictWriter(f, fieldnames=sampled_data[0].keys())
+    csv_writer.writeheader()
+    for row in data_5:
+        csv_writer.writerow(row)
+
+sampled_file_path = "./data/sampled_data_6.csv"
+with open(sampled_file_path, "w", newline="") as f:
+    csv_writer = csv.DictWriter(f, fieldnames=sampled_data[0].keys())
+    csv_writer.writeheader()
+    for row in data_6:
         csv_writer.writerow(row)
 
 

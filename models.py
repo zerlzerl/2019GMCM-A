@@ -1,6 +1,6 @@
-from tensorflow.python.keras.layers import *
-from tensorflow.python.keras.optimizers import Adam
-from tensorflow.python.keras import Sequential
+from keras.layers import *
+from keras.optimizers import Adam
+from keras import Sequential
 
 
 def baseline_model1(input_dim):

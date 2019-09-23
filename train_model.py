@@ -3,13 +3,12 @@ import numpy as np
 import math
 
 # data set
-from tensorflow.python.keras import backend
-from tensorflow.python.keras.callbacks import ModelCheckpoint, EarlyStopping
-from tensorflow.python.keras import Sequential
-from tensorflow.python.keras.layers import Dense, Dropout
-from tensorflow.python.keras.optimizers import Adam
+from keras.callbacks import ModelCheckpoint, EarlyStopping, TensorBoard
+from keras import Sequential
+from keras.layers import Dense, Dropout, BatchNormalization, Activation
+from keras.optimizers import *
 
-file_path = "./data/sampled_data_50w.csv"
+file_path = "./data/sampled_data.csv"
 
 # total_data = []
 # total_label = []
@@ -70,10 +69,16 @@ with open(file_path, "r") as f:
             1 - beta_cos ** 2)
 
         # 环境特征
-        cell_clutter_vec = [0] * 20  # 发射机所在地物特征
-        clutter_vec = [0] * 20  # 接收机所在地物特征
-        cell_clutter_vec[cell_clutter - 1] = 1
-        clutter_vec[clutter - 1] = 1
+        # 分七个类
+        classes = {
+            "10": 0, "11": 0, "12": 0, "20": 0, "13": 1, "14": 1, "16": 1, "15": 2, "18": 2,
+            "17": 3, "19": 3, "1": 4, "2": 4, "3": 4, "4": 5, "5": 5, "6": 5, "7": 6, "8": 6, "9": 6
+        }
+        cell_clutter_vec = [0] * 7  # 发射机所在地物特征
+        clutter_vec = [0] * 7  # 接收机所在地物特征
+
+        cell_clutter_vec[classes[str(cell_clutter)]] = 1
+        clutter_vec[classes[str(clutter)]] = 1
 
         h_build_s = cell_building_h
         h_build_r = building_h
@@ -101,6 +106,7 @@ with open(file_path, "r") as f:
                 h_build_s,
                 h_build_r,
                 alti_diff,
+                round(cell_idx / 100)  # 小区去掉最后两位
             ]
         feature_list.extend(cell_clutter_vec)
         feature_list.extend(clutter_vec)
@@ -121,7 +127,7 @@ with open(file_path, "r") as f:
 # 减少正例样本
 print("非弱覆盖数量： %d" % len(total_x_p))
 print("弱覆盖数量： %d" % len(total_x_n))
-sample_pos_rate = 0.5
+sample_pos_rate = 0.8
 sample_neg_rate = 1
 
 sample_x_p = total_x_p[:round(sample_pos_rate * len(total_x_p)) - 1]
@@ -140,14 +146,45 @@ total_y = total[:, -1]
 
 # create model
 model = Sequential()
-model.add(Dense(128, input_dim=total_x.shape[1], kernel_initializer='normal', activation='relu'))
-model.add(Dense(64, kernel_initializer='normal', activation='relu'))
-model.add(Dense(32, kernel_initializer='normal', activation='relu'))
-model.add(Dense(16, kernel_initializer='normal', activation='relu'))
-model.add(Dropout())
+model.add(BatchNormalization())
+model.add(Dense(128, input_dim=total_x.shape[1], kernel_initializer='normal'))
+# model.add(BatchNormalization())
+# model.add(Activation("relu"))
+# model.add(Dense(112, kernel_initializer='normal'))
+model.add(BatchNormalization())
+model.add(Activation("relu"))
+model.add(Dense(96, kernel_initializer='normal'))
+# model.add(BatchNormalization())
+# model.add(Activation("relu"))
+# model.add(Dense(80, kernel_initializer='normal'))
+model.add(BatchNormalization())
+model.add(Activation("relu"))
+model.add(Dense(64, kernel_initializer='normal'))
+# model.add(BatchNormalization())
+# model.add(Activation("relu"))
+# model.add(Dense(48, kernel_initializer='normal'))
+model.add(BatchNormalization())
+model.add(Activation("relu"))
+model.add(Dense(32, kernel_initializer='normal'))
+model.add(BatchNormalization())
+model.add(Activation("relu"))
+model.add(Dense(16, kernel_initializer='normal'))
+model.add(BatchNormalization())
+model.add(Activation("relu"))
+model.add(Dense(8, kernel_initializer='normal'))
+model.add(BatchNormalization())
+model.add(Activation("relu"))
 model.add(Dense(1, kernel_initializer='normal'))
+# model.add(Dense(128, input_dim=total_x.shape[1], kernel_initializer='normal', activation="relu"))
+# model.add(Dense(64, kernel_initializer='normal', activation="relu"))
+# model.add(Dense(32, kernel_initializer='normal', activation="relu"))
+# model.add(Dense(16, kernel_initializer='normal', activation="relu"))
+# model.add(Dropout(0.2))
+# model.add(Dense(1, kernel_initializer='normal'))
 # Compile model
-opt = Adam(lr=0.002, beta_1=0.9, beta_2=0.99, epsilon=None, decay=0.0, amsgrad=False)
+opt = Adam(lr=0.002, beta_1=0.9, beta_2=0.999, epsilon=10E-8, decay=0.0, amsgrad=False)
+# opt = SGD(lr=0.01, decay=1e-6, momentum=0.9, nesterov=True)
+# opt = RMSprop(lr=0.002, rho=0.9, epsilon=None, decay=0.0)
 model.compile(optimizer=opt, loss='mse', metrics=['mae'])
 
 # 设置模型保存位置
@@ -162,13 +199,21 @@ checkpoint = ModelCheckpoint(filepath,
 # 当val_loss不再提升，则停止训练
 earlystop = EarlyStopping(monitor='val_loss',
                           min_delta=0,
-                          patience=10,
+                          patience=20,
                           verbose=1,
                           mode='auto')
 
-callbacks = [checkpoint, earlystop]
+tbCallBack = TensorBoard(log_dir='./logs',  # log 目录
+                         histogram_freq=0,  # 按照何等频率（epoch）来计算直方图，0为不计算
+                         write_graph=True,  # 是否存储网络结构图
+                         write_grads=True,  # 是否可视化梯度直方图
+                         write_images=True,  # 是否可视化参数
+                         embeddings_freq=0,
+                         embeddings_layer_names=None,
+                         embeddings_metadata=None)
+callbacks = [checkpoint, earlystop, tbCallBack]
 
-model.fit(total_x, total_y, validation_split=0.15, batch_size=100, epochs=100, callbacks=callbacks, verbose=1)
+model.fit(total_x, total_y, validation_split=0.15, batch_size=1024, epochs=200, callbacks=callbacks, verbose=1)
 
 model.save("model/my_model.h5")
 
@@ -182,6 +227,7 @@ with open(test_file_path, "r") as f:
     next(f)
     for data_line in csv_reader:
         one_line_data = np.array(data_line, np.float32)
+        cell_idx = one_line_data[0]
         cell_x = one_line_data[1]
         cell_y = one_line_data[2]
         cell_h = one_line_data[3]
@@ -223,10 +269,16 @@ with open(test_file_path, "r") as f:
             1 - beta_cos ** 2)
 
         # 环境特征
-        cell_clutter_vec = [0] * 20  # 发射机所在地物特征
-        clutter_vec = [0] * 20  # 接收机所在地物特征
-        cell_clutter_vec[cell_clutter - 1] = 1
-        clutter_vec[clutter - 1] = 1
+        # 分七个类
+        classes = {
+            "10": 0, "11": 0, "12": 0, "20": 0, "13": 1, "14": 1, "16": 1, "15": 2, "18": 2,
+            "17": 3, "19": 3, "1": 4, "2": 4, "3": 4, "4": 5, "5": 5, "6": 5, "7": 6, "8": 6, "9": 6
+        }
+        cell_clutter_vec = [0] * 7  # 发射机所在地物特征
+        clutter_vec = [0] * 7  # 接收机所在地物特征
+
+        cell_clutter_vec[classes[str(cell_clutter)]] = 1
+        clutter_vec[classes[str(clutter)]] = 1
 
         h_build_s = cell_building_h
         h_build_r = building_h
@@ -254,6 +306,7 @@ with open(test_file_path, "r") as f:
                 h_build_s,
                 h_build_r,
                 alti_diff,
+                round(cell_idx / 100)  # 小区去掉最后两位
             ]
         feature_list.extend(cell_clutter_vec)
         feature_list.extend(clutter_vec)

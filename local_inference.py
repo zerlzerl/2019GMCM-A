@@ -1,39 +1,44 @@
 import csv
 import time
 
+import keras
 import math
 import tensorflow as tf
-from tensorflow.python import keras
 import numpy as np
 
 
 keras.backend.clear_session()
 # 原始文件的header顺序
-test_file_path = "E:\\Study\\19华为杯\\赛题\\2019年中国研究生数学建模竞赛A题\\train_set\\train_132501.csv"
+test_file_path = "E:\Code\PyCharm\\2019GMCM_A\data\sampled_data_5w.csv"
 test_x = []
 test_y = []
 with open(test_file_path, "r") as f:
-    csv_reader = csv.reader(f)
-    next(f)
+    csv_reader = csv.DictReader(f)
     for data_line in csv_reader:
-        one_line_data = np.array(data_line, np.float32)
-        cell_x = one_line_data[1]
-        cell_y = one_line_data[2]
-        cell_h = one_line_data[3]
-        azimuth = one_line_data[4]
-        elec_downtilt = one_line_data[5]
-        mechan_downtilt = one_line_data[6]
-        frequency = one_line_data[7]
-        power = one_line_data[8]
-        cell_altitude = one_line_data[9]
-        cell_building_h = one_line_data[10]
-        cell_clutter = int(one_line_data[11])
-        x = one_line_data[12]
-        y = one_line_data[13]
-        altitude = one_line_data[14]
-        building_h = one_line_data[15]
-        clutter = int(one_line_data[16])
-        rsrp = one_line_data[17]
+        cell_idx = int(data_line["Cell Index"])  # Cell ID
+        cell_x = float(data_line["Cell X"])  # 单位是栅格
+        cell_y = float(data_line["Cell Y"])  # 单位是栅格
+        cell_h = float(data_line["Height"])  # 站点高度,单位是m
+        cell_building_h = float(data_line["Cell Building Height"])  # 站点所在建筑物高度，单位是m
+        cell_altitude = float(data_line["Cell Altitude"])  # 站点海拔，单位是m
+        cell_clutter = int(data_line["Cell Clutter Index"])  # 站点所在地物类型索引
+
+        azimuth = float(data_line["Azimuth"])  # 方向角，单位是°
+        elec_downtilt = float(data_line["Electrical Downtilt"])  # 电下倾角，单位是°
+        mechan_downtilt = float(data_line["Mechanical Downtilt"])  # 机械下倾角，单位是°
+        frequency = float(data_line["Frequency Band"])  # 带宽，单位MHz
+        power = float(data_line["RS Power"])  # 发射功率，单位dBm
+
+        # ========================================
+        # 对接收器
+        x = float(data_line["X"])  # 接收器x坐标，单位是栅格
+        y = float(data_line["Y"])  # 接收器y坐标，单位是栅格
+        building_h = float(data_line["Building Height"])  # 接收器所在地建筑物高度，单位是m
+        altitude = float(data_line["Altitude"])  # 接收器所在地海拔高度，单位是m
+        clutter = int(data_line["Clutter Index"])  # 接收器所在地物类型索引
+
+        # 标签
+        rsrp = float(data_line["RSRP"])  # 接收器信号强度
 
         # 电气特征
         h_s = cell_h  # 发射机相对地面有效高度
@@ -58,10 +63,16 @@ with open(test_file_path, "r") as f:
             1 - beta_cos ** 2)
 
         # 环境特征
-        cell_clutter_vec = [0] * 20  # 发射机所在地物特征
-        clutter_vec = [0] * 20  # 接收机所在地物特征
-        cell_clutter_vec[cell_clutter - 1] = 1
-        clutter_vec[clutter - 1] = 1
+        # 分七个类
+        classes = {
+            "10": 0, "11": 0, "12": 0, "20": 0, "13": 1, "14": 1, "16": 1, "15": 2, "18": 2,
+            "17": 3, "19": 3, "1": 4, "2": 4, "3": 4, "4": 5, "5": 5, "6": 5, "7": 6, "8": 6, "9": 6
+        }
+        cell_clutter_vec = [0] * 7  # 发射机所在地物特征
+        clutter_vec = [0] * 7  # 接收机所在地物特征
+
+        cell_clutter_vec[classes[str(cell_clutter)]] = 1
+        clutter_vec[classes[str(clutter)]] = 1
 
         h_build_s = cell_building_h
         h_build_r = building_h
@@ -89,18 +100,22 @@ with open(test_file_path, "r") as f:
                 h_build_s,
                 h_build_r,
                 alti_diff,
+                round(cell_idx / 100)  # 小区去掉最后两位
             ]
         feature_list.extend(cell_clutter_vec)
         feature_list.extend(clutter_vec)
-
         features = np.asarray(feature_list, dtype=np.float32)
-        test_x.append(features)
-        test_y.append(rsrp)
+        if np.any(np.isnan(features)) or np.any(np.isnan(rsrp)):
+            print("cell_idx: %f, x: %f, y: %f" % (cell_idx, x, y))
+            continue
+        else:
+            test_x.append(features)
+            test_y.append(rsrp)
 
 test_x = np.array(test_x)
 test_y = np.array(test_y)
 # 测h5模型对不对
-h5_model_path = "./model/my_model.h5"
+h5_model_path = "./model/0922/weights-improvement-136-58.89.h5"
 tf.keras.backend.set_learning_phase(0)
 model = keras.models.load_model(h5_model_path)
 
