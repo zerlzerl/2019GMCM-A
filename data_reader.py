@@ -18,7 +18,7 @@ def read_dir(dir_path):
 
 
 def read_training_data():
-    training_dir = "./data/sample/train/"
+    training_dir = "../MathModel/train_set/"
     return read_dir(training_dir)
 
 

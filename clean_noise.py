@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from sklearn.cluster import AgglomerativeClustering
 import numpy as np
 
-dir_path = "E:\Study\\19华为杯\赛题\\2019年中国研究生数学建模竞赛A题\\train_set"
+dir_path = "./data/sample/train/"
 file_list = os.listdir(dir_path)
 
 print("file number: " + str(len(file_list)))
@@ -104,9 +104,11 @@ for i in range(len(file_list)):
         center_position = np.mean(group, axis=0)
         center_distance = np.linalg.norm(center_position - sender_position)
         if center_distance < threshold and len(group) > 10:
+            group = np.insert(group, 0, np.zeros(shape=group.shape[0]), axis=1)
             cleaned_data.extend(group.tolist())
             # plt.scatter(group[:, 0], group[:, 1], color=colors[int(key)], label=key)
         else:
+            group = np.insert(group, 0, np.ones(shape=group.shape[0]), axis=1)
             noise_data.extend(group.tolist())
 
     # plt.scatter(cell_position[0], cell_position[1], marker='v', color="r", alpha=0.7)
@@ -126,7 +128,7 @@ for i in range(len(file_list)):
             cleaned_data_list.append(data_dict[key])
 
     # 存入到csv
-    with open("E:\Study\\19华为杯\\赛题\\2019年中国研究生数学建模竞赛A题\\cleaned_train_set\\"+ file.split('.')[0] + "_cleaned.csv", "w", newline="") as f:
+    with open("./data/cleaned_train_set\\"+ file.split('.')[0] + "_cleaned.csv", "w", newline="") as f:
         csv_writer = csv.DictWriter(f, cleaned_data_list[0].keys())
         csv_writer.writeheader()
         for line_dict in cleaned_data_list:
