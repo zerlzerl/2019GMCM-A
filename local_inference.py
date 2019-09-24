@@ -115,7 +115,7 @@ with open(test_file_path, "r") as f:
 test_x = np.array(test_x)
 test_y = np.array(test_y)
 # 测h5模型对不对
-h5_model_path = "./model/0922/weights-improvement-136-58.89.h5"
+h5_model_path = "./model/0922/weights-improvement-44-85.38.h5"
 tf.keras.backend.set_learning_phase(0)
 model = keras.models.load_model(h5_model_path)
 

@@ -3,10 +3,10 @@ import time
 import tensorflow as tf
 import keras
 
-h5_model_path = "./model/0922/weights-improvement-136-58.89.h5"
+h5_model_path = "./model/0922/weights-improvement-99-84.54.h5"
 tf.keras.backend.set_learning_phase(0)
 model = keras.models.load_model(h5_model_path)
-export_path = './model/tf/1200w_23_05'
+export_path = './model/tf/1200w_origin_99epoch'
 print(model.inputs)
 print(model.outputs)
 #
