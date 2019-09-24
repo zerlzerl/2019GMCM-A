@@ -1,4 +1,4 @@
-# 从csv读取原始数据
+# 对小区内基站和接收点 点坐标、信号强度 建立三维可视化图像
 import os
 import csv
 import pandas as pd
